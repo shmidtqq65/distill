@@ -1,0 +1,5 @@
+node_modules/
+.demo-frames*/
+demo*.mp4
+*.log
+.DS_Store

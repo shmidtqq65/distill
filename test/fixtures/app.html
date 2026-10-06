@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard | Fixture App</title>
+<style>
+body{margin:0;font:14px/1.4 system-ui,sans-serif;background:#f4f6f8;color:#16202a}
+nav{display:flex;gap:18px;padding:14px 22px;background:#fff;border-bottom:1px solid #e3e8ee}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:22px}
+.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.card b{display:block;font-size:26px;margin-top:6px}
+button{padding:8px 14px;border-radius:6px;border:1px solid #c9d2dc;background:#fff}
+</style>
+</head>
+<body>
+<nav><b>Fixture App</b><a href="#">Overview</a><a href="#">Orders</a><a href="#">Customers</a><a href="#">Settings</a></nav>
+<div class="grid">
+  <div class="card">Revenue<b>$12,480</b></div>
+  <div class="card">Orders<b>318</b></div>
+  <div class="card">Refunds<b>4</b></div>
+  <div class="card">Visitors<b>9,201</b></div>
+  <div class="card">Top product<b>Mug</b></div>
+  <div class="card">Conversion<b>3.4%</b></div>
+  <div class="card"><button type="button">Export CSV</button></div>
+  <div class="card"><button type="button">New order</button></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DISTILL: TL;DR any website</title>
+<meta name="description" content="A bookmarklet and Chrome extension that boils any web page down to its main idea, key points, figures and keywords. Offline, any language, nothing leaves your browser.">
+<meta name="theme-color" content="#fbfcfb">
+<meta property="og:type" content="website">
+<meta property="og:title" content="DISTILL: TL;DR any website">
+<meta property="og:description" content="Click it on any article: menus and ads evaporate, the sentences that matter light up, and a card hands you the gist. Nothing leaves your browser.">
+<meta property="og:image" content="https://shmidtqq65.github.io/distill/assets/og.png">
+<meta property="og:url" content="https://shmidtqq65.github.io/distill/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://shmidtqq65.github.io/distill/assets/og.png">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<style>
+@font-face{font-family:"Archivo";font-style:normal;font-weight:100 900;font-stretch:62% 125%;font-display:swap;src:url(assets/fonts/archivo-wdth.woff2) format("woff2")}
+@font-face{font-family:"Newsreader";font-style:normal;font-weight:200 800;font-display:swap;src:url(assets/fonts/newsreader-wght.woff2) format("woff2")}
+:root{
+  --paper:#fbfcfb;--ink:#1b2326;--blue:#1f4fd1;--mark:#ffe84a;--vapor:#6f7d84;--mist:#dfe5e8;--glass:#eef3f2;
+  --text:"Newsreader",Georgia,"Times New Roman",serif;--label:"Archivo","Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#121719;--ink:#e7ecea;--blue:#93b2ff;--mark:#f0e44e;--vapor:#97a4a9;--mist:#283135;--glass:#1a2124;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#121719;--ink:#e7ecea;--blue:#93b2ff;--mark:#f0e44e;--vapor:#97a4a9;--mist:#283135;--glass:#1a2124;color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 19px/1.62 var(--text);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:var(--blue);text-underline-offset:3px;text-decoration-thickness:1px}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:4px}
+::selection{background:var(--mark);color:#1b2326}
+
+/* the burette: reading time of this page, drains as you read */
+.burette{position:fixed;top:40px;bottom:40px;left:max(18px,calc(50vw - 600px));width:64px;pointer-events:none;font:600 11px/1 var(--label);font-stretch:112%;color:var(--blue)}
+.burette .tube{position:absolute;left:0;top:0;bottom:0;width:12px;border-radius:6px;box-shadow:inset 0 0 0 1.5px var(--blue);overflow:hidden;background:var(--glass)}
+.burette .tube::after{content:"";position:absolute;inset:0;border-radius:6px;box-shadow:inset 0 0 0 1.5px var(--blue)}
+.burette .liquid{position:absolute;left:0;right:0;bottom:0;top:0;background:var(--mark);border-top:1.5px solid var(--blue);transition:top .12s linear}
+.burette .tick{position:absolute;left:12px;height:1.5px;width:7px;background:var(--blue)}
+.burette .tick.minor{width:4px;opacity:.6}
+.burette .num{position:absolute;left:24px;transform:translateY(-50%);white-space:nowrap}
+.burette .tap{position:absolute;left:-6px;bottom:-26px;width:24px;height:22px}
+.progress{display:none}
+
+.page{max-width:1200px;margin:0 auto;padding:0 32px 0 max(110px,calc(50vw - 600px + 110px))}
+@media (min-width:1300px){.page{padding-left:max(110px,calc(50vw - 600px + 130px))}}
+.hero{padding:88px 0 40px;max-width:900px}
+.wordmark{margin:0;font:800 clamp(78px,15vw,188px)/.86 var(--label);font-stretch:125%;letter-spacing:-.045em;color:var(--ink)}
+.tagline{margin:26px 0 0;font:500 clamp(25px,3.1vw,36px)/1.18 var(--text);letter-spacing:-.012em;max-width:22em}
+.lede{margin:20px 0 0;max-width:34em;font-size:20px;line-height:1.55;color:var(--ink)}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin:34px 0 0}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 20px;border-radius:12px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);font:650 16px/1 var(--label);font-stretch:108%;text-decoration:none;cursor:pointer;transition:transform .12s ease,background-color .12s ease}
+.btn:hover{background:var(--glass)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--ink);color:var(--paper)}
+.btn.primary:hover{background:var(--ink);opacity:.9}
+.btn svg{width:18px;height:20px;flex:none}
+.keep{display:flex;flex-wrap:wrap;align-items:center;gap:8px 5px;margin:28px 0 0;font:500 15px/1.4 var(--label);color:var(--vapor)}
+.keep .bm{margin:0 3px}
+.bm{display:inline-flex;align-items:center;gap:8px;padding:8px 14px 8px 11px;border-radius:999px;background:var(--mark);color:#1b2326;border:1.5px solid #1b2326;font:700 15px/1 var(--label);font-stretch:112%;text-decoration:none;cursor:grab;box-shadow:0 2px 0 #1b2326}
+.bm:active{cursor:grabbing;transform:translateY(1px);box-shadow:0 1px 0 #1b2326}
+.bm svg{width:15px;height:17px}
+.linkish{background:none;border:0;padding:0;font:inherit;color:var(--blue);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.small{font:500 14px/1.45 var(--label);color:var(--vapor)}
+.keep .mob{display:none}
+
+.demo{margin:36px 0 0;max-width:960px}
+.demo .frame{border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px var(--mist),0 30px 60px -30px rgba(15,30,45,.35)}
+.demo img{display:block;width:100%;height:auto;background:var(--glass);aspect-ratio:16/9}
+.demo figcaption{margin-top:12px;font:500 14px/1.45 var(--label);color:var(--vapor)}
+
+.prose{max-width:680px}
+.doc > .prose:first-of-type{padding-top:40px}
+.prose h2{font:750 28px/1.15 var(--label);font-stretch:112%;letter-spacing:-.015em;margin:64px 0 16px}
+.prose h3{font:700 19px/1.25 var(--label);font-stretch:106%;margin:30px 0 8px}
+.prose p{margin:0 0 1.05em}
+.prose ol{margin:0 0 1.1em;padding-left:1.3em}
+.prose li{margin:.25em 0}
+.prose code,.prose kbd{font:500 .82em/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.prose code{padding:2px 5px;border-radius:5px;background:var(--glass)}
+kbd{display:inline-block;min-width:1.6em;padding:3px 6px;border-radius:6px;border:1px solid var(--mist);border-bottom-width:2px;background:var(--paper);text-align:center}
+.ways{display:grid;gap:4px}
+.way{padding:4px 0 8px;border-top:1px solid var(--mist)}
+.way h3{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.way h3 span{font:500 14px/1.3 var(--label);color:var(--vapor)}
+details{border-top:1px solid var(--mist);padding:14px 0}
+details:last-of-type{border-bottom:1px solid var(--mist)}
+summary{cursor:pointer;font:650 18px/1.35 var(--label);list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-weight:400;color:var(--blue)}
+details[open] summary::after{content:"\2212"}
+details p{margin:10px 0 0}
+.site-foot{max-width:680px;padding:48px 0 72px;font:500 14px/1.6 var(--label);color:var(--vapor)}
+.site-foot a{color:inherit}
+
+@media (max-width:899px){
+  .burette{display:none}
+  .progress{display:block;position:fixed;top:0;left:0;right:0;height:3px;z-index:5;background:transparent}
+  .progress i{display:block;height:100%;width:0;background:var(--mark);box-shadow:0 1px 0 var(--blue)}
+  .page{padding:0 20px}
+  .keep .desk{display:none}.keep .mob{display:inline}
+  .hero{padding-top:56px}
+  .lede{font-size:18.5px}
+  body{font-size:18px}
+  .prose h2{font-size:24px;margin-top:48px}
+}
+@media (prefers-reduced-motion:reduce){.burette .liquid{transition:none}.btn{transition:none}}
+</style>
+</head>
+<body>
+<div class="burette" aria-hidden="true"><div class="tube"><div class="liquid" id="liquid"></div></div><div id="ticks"></div>
+  <svg class="tap" viewBox="0 0 24 22"><path d="M6 1.5h12M12 1.5v8M4 9.5h16v4H4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 15c-1.6 2.2-2.4 3.6-2.4 4.4a2.4 2.4 0 0 0 4.8 0c0-.8-.8-2.2-2.4-4.4z" fill="var(--mark)" stroke="currentColor" stroke-width="1.2"/></svg>
+</div>
+<div class="progress" aria-hidden="true"><i id="bar"></i></div>
+
+<div class="page">
+  <main>
+  <article class="doc">
+  <header class="hero">
+    <h1 class="wordmark">distill</h1>
+    <p class="tagline">TL;DR any website. Nothing leaves your browser.</p>
+    <p class="lede">Click it on any article and watch the page boil down. Menus and ads evaporate, the sentences that matter light up, and a card hands you the main idea, the key points, the numbers and the keywords.</p>
+    <div class="actions">
+      <button class="btn primary" id="run" type="button"><svg viewBox="0 0 24 28" aria-hidden="true"><path d="M9 2.5h6M10 2.5v7.5L3.6 21.6c-.9 1.7.3 3.4 2.2 3.4h12.4c1.9 0 3.1-1.7 2.2-3.4L14 10V2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><path d="M6.2 19h11.6l1.5 2.8c.5 1-.2 1.9-1.2 1.9H5.9c-1 0-1.7-.9-1.2-1.9z" fill="var(--mark)"/></svg>Distill this page</button>
+      <a class="btn" href="demo/">Try it on a magazine article</a>
+    </div>
+    <p class="keep"><span class="desk">Keep it: drag </span><a class="bm" id="bm" href="#install" title="Drag me to your bookmarks bar"><svg viewBox="0 0 24 28" aria-hidden="true"><path d="M9 2.5h6M10 2.5v7.5L3.6 21.6c-.9 1.7.3 3.4 2.2 3.4h12.4c1.9 0 3.1-1.7 2.2-3.4L14 10V2.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/></svg>distill</a><span class="desk"> to your bookmarks bar, or </span><span class="mob"> On a phone, </span><button class="linkish" id="copybm" type="button">copy the bookmark code</button><span class="desk"> for a phone.</span><span class="mob"> and save it as a bookmark.</span></p>
+  </header>
+
+  <figure class="demo">
+    <div class="frame"><picture><source srcset="assets/demo.webp" type="image/webp"><img src="assets/demo.gif" width="960" height="540" loading="lazy" alt="A magazine article about honeybees: the menu and sidebar fade away, key sentences are marked in yellow, drops fall into a small flask and a summary card opens. Clicking a point scrolls to it, clicking a keyword highlights every mention, and Esc restores the page."></picture></div>
+    <figcaption>A long read about honeybees, distilled in under three seconds. Esc puts every pixel back.</figcaption>
+  </figure>
+
+    <div class="prose">
+      <h2 id="what">What you get</h2>
+      <p>Every summary starts with the main idea, the one sentence that best captures the page. DISTILL looks for it near the headline and in the opening paragraphs, where writers usually put it, and checks that it connects to the rest of the text.</p>
+      <p>Below it come up to five key points. They are chosen to cover different sections instead of repeating one paragraph, and they keep the order of the original. Click a point and the page scrolls to it. The sentence is already marked in yellow, so you can read the paragraph around it.</p>
+      <p>The figures pull out the numbers that carry the story, such as percentages, prices, distances and durations, each with the phrase it belongs to. Keywords show what the page is about. Click one and every mention lights up in the text, and each further click takes you to the next one.</p>
+      <p>The meter at the top compares how long the page takes to read with how long the summary takes. Reading speed depends on the language, so the meter uses the averages from a study of reading speed in 17 languages, 228 words a minute for English. Copy puts the whole summary on your clipboard with a link back to the page.</p>
+
+    </div>
+    <aside class="prose install" id="install" aria-labelledby="install-h">
+      <h2 id="install-h">Install</h2>
+      <p>All four ways run the same single file. Pick whichever fits your browser.</p>
+      <div class="ways">
+        <section class="way">
+          <h3>Bookmark <span>Chrome, Edge, Safari, Firefox, Arc, Brave</span></h3>
+          <ol>
+            <li>Drag the yellow <b>distill</b> label above to your bookmarks bar. No bar? Press <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>B</kbd>, or <kbd>&#8984;</kbd> <kbd>Shift</kbd> <kbd>B</kbd> on a Mac.</li>
+            <li>Open any article and click the bookmark. Click it again or press <kbd>Esc</kbd> to put the page back.</li>
+          </ol>
+          <p class="small">On a phone, copy the bookmark code, save any page as a bookmark, then edit it: name it distill and paste the code as its address. To run it, type distill in the address bar and tap the bookmark.</p>
+        </section>
+        <section class="way">
+          <h3>Chrome extension <span>Chrome, Edge, Brave, Arc</span></h3>
+          <ol>
+            <li>Download the repository from <a href="https://github.com/shmidtqq65/distill">GitHub</a> (Code, then Download ZIP) and unzip it.</li>
+            <li>Open <code>chrome://extensions</code>, switch on Developer mode and choose Load unpacked. Pick the <code>extension</code> folder.</li>
+            <li>Click the flask icon on any page or press <kbd>Alt</kbd> <kbd>Shift</kbd> <kbd>D</kbd>.</li>
+          </ol>
+        </section>
+        <section class="way">
+          <h3>Userscript <span>Tampermonkey, Violentmonkey</span></h3>
+          <ol>
+            <li>Open the <a href="https://raw.githubusercontent.com/shmidtqq65/distill/main/userscript/distill.user.js">raw userscript</a> and confirm the install.</li>
+            <li>Press <kbd>Alt</kbd> <kbd>Shift</kbd> <kbd>D</kbd> on any page.</li>
+          </ol>
+        </section>
+        <section class="way">
+          <h3>Console <span>any browser with developer tools</span></h3>
+          <ol>
+            <li>Open developer tools, paste the contents of <a href="distill.min.js">distill.min.js</a> into the console and press <kbd>Enter</kbd>.</li>
+          </ol>
+        </section>
+      </div>
+    </aside>
+    <div class="prose">
+      <h2 id="ai">Chrome's built-in AI</h2>
+      <p>On a computer where Chrome can run its on-device model, DISTILL also offers a summary written in the model's own words. Chrome 138 and later can summarize English, Spanish, Japanese, German and French text, and the model runs on your machine, so the page still goes nowhere.</p>
+      <p>The first run downloads the model. Chrome needs about 22 GB of free disk space for it and either a graphics card with more than 4 GB of memory or 16 GB of RAM, and DISTILL starts the download only when you press the button. Phones, other browsers and pages in other languages get the offline summary, which works with any language.</p>
+      <p>When a page is in a different language from your browser, the card shows a Translate button that uses Chrome's on-device translator, so you get the gist of an article in a language you don't read without pasting it anywhere.</p>
+
+      <h2 id="how">How it works</h2>
+      <p>DISTILL is a single script of about 58 KB with no dependencies. It reads a page the way a careful reader skims it. First it finds the main text by weighing every block: long paragraphs count in favor of their container, while links, menus, share buttons and comment threads count against it. The container with the best balance becomes the article.</p>
+      <p>Then it splits the article into sentences with the browser's own Intl.Segmenter, which knows the rules of each language, and ranks them with TextRank, an idea borrowed from early web search: a sentence matters when it shares words with many other important sentences. The ranking also rewards sentences that echo the headline or open a paragraph, and the final picks are spread across the article so that the points don't repeat each other.</p>
+      <p>The page itself is never rewritten. Highlights use the CSS Custom Highlight API, which paints over ranges of text without touching the DOM, so React, Vue and other frameworks keep working underneath. Faded elements get temporary inline styles that are put back exactly when you press Esc, down to the original style attribute. The whole engine fits inside the bookmark, so it also runs on sites with a strict Content Security Policy.</p>
+
+      <h2 id="privacy">Privacy</h2>
+      <p>There are no servers, accounts, analytics or cookies. DISTILL reads the page in your tab, draws the card in the same tab and forgets everything when you close it. Chrome's AI and translator run on your device too. This site loads no third-party scripts or fonts either.</p>
+
+    </div>
+  </article>
+  <section class="prose faq" aria-labelledby="questions">
+      <h2 id="questions">Questions</h2>
+      <details><summary>Does it work on any site?</summary><p>It works on articles, blog posts, documentation, encyclopedias and long threads. Web apps, dashboards and pages made mostly of pictures have little text to work with, and DISTILL says so instead of inventing a summary.</p></details>
+      <details><summary>Why are the points exact quotes?</summary><p>The offline engine picks sentences from the page and never changes them, so every point leads back to its place in the text with one click. Chrome's AI writes new sentences, which are shorter but can be wrong, so the card lets you switch between the two.</p></details>
+      <details><summary>Which languages does it read?</summary><p>Any language with words and sentences. English, German, French, Spanish, Italian, Portuguese and Dutch get extra tuning, and the browser splits Chinese and Japanese into words.</p></details>
+      <details><summary>Are there keyboard shortcuts?</summary><p><kbd>Esc</kbd> closes the card and restores the page, <kbd>C</kbd> copies the summary, <kbd>1</kbd> to <kbd>5</kbd> jump to the points and <kbd>H</kbd> shows the page as it is.</p></details>
+      <details><summary>Why not paste the page into a chatbot?</summary><p>Because the page would have to leave your computer, and you would wait for the answer. DISTILL is instant, free and private, and it shows you where every point came from.</p></details>
+  </section>
+  </main>
+
+  <footer class="site-foot">
+    <p>MIT licensed, made by <a href="https://x.com/shmidtqq">@shmidtqq</a>. Source, issues and the extension on <a href="https://github.com/shmidtqq65/distill">GitHub</a>. The magazine in the demo is fictional.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var run = document.getElementById('run');
+  var bm = document.getElementById('bm');
+  var copyBtn = document.getElementById('copybm');
+  var code = '';
+
+  // the bookmark carries the whole engine (about 59,000 characters), so it is loaded on demand
+  fetch('bookmarklet.txt').then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
+    code = t.trim();
+    if (code) bm.href = code;
+  }).catch(function () {});
+  bm.addEventListener('click', function (e) {
+    // a click runs it right here, a drag saves it
+    if (!code) { e.preventDefault(); distill(); }
+  });
+  copyBtn.addEventListener('click', function () {
+    var done = function () { copyBtn.textContent = 'copied, now paste it into a new bookmark'; };
+    if (code && navigator.clipboard) navigator.clipboard.writeText(code).then(done, function () {});
+  });
+
+  function distill() {
+    if (window.__distill && window.__distill.alive) { window.__distill.toggle(); return; }
+    var s = document.createElement('script');
+    s.src = 'distill.min.js';
+    s.onload = function () { s.remove(); };
+    document.body.appendChild(s);
+  }
+  run.addEventListener('click', distill);
+  if (location.hash === '#distill') setTimeout(distill, 500);
+
+  // the burette: one mark per minute of reading, the liquid drains as you scroll
+  var article = document.querySelector('main');
+  var words = (article.innerText.match(/\S+/g) || []).length + 150;
+  var minutes = Math.max(1, words / 228);
+  var ticks = document.getElementById('ticks');
+  var liquid = document.getElementById('liquid');
+  var bar = document.getElementById('bar');
+  for (var m = 0; m <= Math.floor(minutes * 2); m++) {
+    var y = (m / 2 / minutes) * 100;
+    var t = document.createElement('i');
+    t.className = 'tick' + (m % 2 ? ' minor' : '');
+    t.style.top = y + '%';
+    ticks.appendChild(t);
+    if (m % 2 === 0) {
+      var n = document.createElement('span');
+      n.className = 'num';
+      n.style.top = y + '%';
+      n.textContent = m === 0 ? '0 min' : String(m / 2);
+      ticks.appendChild(n);
+    }
+  }
+  function onScroll() {
+    var max = document.documentElement.scrollHeight - innerHeight;
+    var p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    liquid.style.top = (p * 100).toFixed(2) + '%';
+    bar.style.width = (p * 100).toFixed(2) + '%';
+  }
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', onScroll);
+  onScroll();
+})();
+</script>
+</body>
+</html>

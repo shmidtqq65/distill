@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caching HTTP responses | Fixture Docs</title>
+<style>
+body{margin:0;font:15px/1.65 system-ui,sans-serif;color:#1d232a;background:#fcfcfd}
+a{color:#0b62d6;text-decoration:none}
+.topnav{position:sticky;top:0;z-index:5;display:flex;gap:22px;align-items:center;height:56px;padding:0 24px;background:#0f172a;color:#e2e8f0}
+.topnav a{color:#cbd5e1}.topnav .brand{font-weight:700;color:#fff;margin-right:18px}
+.wrap{display:grid;grid-template-columns:250px minmax(0,760px) 220px;gap:40px;max-width:1320px;margin:0 auto;padding:0 24px}
+.sidebar{position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto;padding:24px 0;font-size:14px}
+.sidebar h4{font-size:12px;color:#64748b;margin:18px 0 6px}
+.sidebar ul{list-style:none;margin:0;padding:0}.sidebar li{padding:4px 0}
+.sidebar .on{font-weight:600;color:#0f172a}
+.doc{padding:28px 0 60px}
+.crumbs{font-size:13px;color:#64748b;margin-bottom:10px}
+.doc h1{font-size:34px;line-height:1.2;margin:0 0 14px}
+.doc h2{font-size:22px;margin:34px 0 10px}
+.doc pre{background:#0f172a;color:#e2e8f0;padding:14px 16px;border-radius:8px;overflow:auto;font:13px/1.55 ui-monospace,monospace}
+.doc code{font:13px ui-monospace,monospace;background:#eef2f7;padding:1px 5px;border-radius:4px}
+.doc pre code{background:none;padding:0}
+.note{border-left:4px solid #0b62d6;background:#eef5ff;padding:10px 14px;border-radius:4px;margin:16px 0}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:12px 0}
+td,th{border:1px solid #dbe2ea;padding:7px 10px;text-align:left}
+.toc{position:sticky;top:56px;padding:28px 0;font-size:13px}
+.toc h4{font-size:12px;color:#64748b;margin:0 0 8px}
+.toc ul{list-style:none;padding:0;margin:0}.toc li{padding:3px 0}
+.feedback{margin-top:40px;padding:16px;border:1px solid #dbe2ea;border-radius:8px;font-size:14px}
+.feedback button{margin-left:8px;padding:4px 12px}
+.pager{display:flex;justify-content:space-between;margin-top:24px;font-size:14px}
+footer{border-top:1px solid #dbe2ea;padding:24px;font-size:13px;color:#64748b;text-align:center}
+</style>
+</head>
+<body>
+<nav class="topnav"><a class="brand" href="#">Fixture Docs</a><a href="#">Guides</a><a href="#">API reference</a><a href="#">Examples</a><a href="#">Blog</a><a href="#">GitHub</a></nav>
+<div class="wrap">
+  <aside class="sidebar">
+    <h4>Getting started</h4><ul><li><a href="#">Installation</a></li><li><a href="#">Project structure</a></li><li><a href="#">Configuration</a></li></ul>
+    <h4>Data fetching</h4><ul><li><a href="#">Fetching data</a></li><li><a class="on" href="#">Caching HTTP responses</a></li><li><a href="#">Revalidating</a></li><li><a href="#">Error handling</a></li></ul>
+    <h4>Rendering</h4><ul><li><a href="#">Server rendering</a></li><li><a href="#">Static export</a></li><li><a href="#">Streaming</a></li><li><a href="#">Edge runtime</a></li></ul>
+    <h4>Deploying</h4><ul><li><a href="#">Production checklist</a></li><li><a href="#">Self-hosting</a></li><li><a href="#">CDN setup</a></li></ul>
+  </aside>
+  <main class="doc">
+    <div class="crumbs"><a href="#">Docs</a> / <a href="#">Data fetching</a> / Caching</div>
+    <h1>Caching HTTP responses</h1>
+    <p>Caching lets a browser or a CDN reuse a response it has already downloaded instead of asking your server again. A good caching policy makes pages load faster, cuts bandwidth costs and keeps your origin server calm during traffic spikes. This guide explains the headers that control caching and shows the policies that work for most apps.</p>
+    <h2 id="cache-control">The Cache-Control header</h2>
+    <p>Every caching decision starts with the <code>Cache-Control</code> response header. The most important directive is <code>max-age</code>, which tells caches how many seconds a response stays fresh. While a response is fresh, the browser uses it without contacting the server at all.</p>
+    <pre><code>Cache-Control: public, max-age=31536000, immutable</code></pre>
+    <p>The example above is the right policy for fingerprinted assets such as <code>app.3f9a1c.js</code>, whose file name changes whenever their content changes. One year is the conventional maximum, and the <code>immutable</code> directive tells browsers not to revalidate the file even when the user reloads the page.</p>
+    <div class="note"><b>Note:</b> never send a long <code>max-age</code> for HTML documents or for URLs that keep the same name after a deploy, because users will keep seeing the old version until the cache expires.</div>
+    <h2 id="no-cache">no-cache is not no-store</h2>
+    <p>The names are confusing, so it is worth being precise. The <code>no-cache</code> directive allows a cache to store the response, but it must check with the server before every reuse. The <code>no-store</code> directive forbids storing the response anywhere, which is what you want for pages that contain private data such as account balances.</p>
+    <table><tr><th>Directive</th><th>Stores a copy</th><th>Revalidates before use</th></tr><tr><td>max-age=600</td><td>Yes</td><td>After 10 minutes</td></tr><tr><td>no-cache</td><td>Yes</td><td>Every time</td></tr><tr><td>no-store</td><td>No</td><td>Not applicable</td></tr></table>
+    <h2 id="validators">Validators and 304 responses</h2>
+    <p>When a cached response becomes stale, the browser does not have to download it again. If the response carried an <code>ETag</code> or a <code>Last-Modified</code> header, the browser sends a conditional request with <code>If-None-Match</code> or <code>If-Modified-Since</code>. If nothing changed, the server answers with a short 304 Not Modified response and the browser keeps using its copy.</p>
+    <pre><code>GET /api/profile HTTP/1.1
+If-None-Match: "a1b2c3"
+
+HTTP/1.1 304 Not Modified</code></pre>
+    <p>Revalidation still costs a round trip, but it saves the transfer of the body. For large JSON payloads that rarely change, this can cut bandwidth by more than 90 percent.</p>
+    <h2 id="swr">Serving stale content while revalidating</h2>
+    <p>The <code>stale-while-revalidate</code> extension lets a cache serve a stale response immediately while it fetches a fresh one in the background. Users get an instant page, and the next visitor gets updated content. It works best for data that can be a few seconds or minutes out of date, such as product listings or blog indexes.</p>
+    <h2 id="vary">Caching personalized responses</h2>
+    <p>Shared caches such as CDNs must never mix up responses meant for different users. Mark personalized responses with <code>private</code>, and use the <code>Vary</code> header when the same URL returns different content depending on a request header such as <code>Accept-Language</code>. Avoid <code>Vary: Cookie</code> on public pages, because it effectively disables shared caching.</p>
+    <h2 id="checklist">Recommended defaults</h2>
+    <ul>
+      <li>Fingerprinted static assets: <code>public, max-age=31536000, immutable</code>.</li>
+      <li>HTML pages: <code>no-cache</code> with an <code>ETag</code>.</li>
+      <li>Public API responses: a short <code>max-age</code> plus <code>stale-while-revalidate</code>.</li>
+      <li>Private data: <code>private, no-store</code>.</li>
+    </ul>
+    <div class="feedback">Was this page helpful? <button type="button">Yes</button><button type="button">No</button></div>
+    <div class="pager"><a href="#">Previous: Fetching data</a><a href="#">Next: Revalidating</a></div>
+  </main>
+  <nav class="toc" aria-label="On this page"><h4>On this page</h4><ul><li><a href="#cache-control">The Cache-Control header</a></li><li><a href="#no-cache">no-cache is not no-store</a></li><li><a href="#validators">Validators and 304 responses</a></li><li><a href="#swr">Serving stale content</a></li><li><a href="#vary">Personalized responses</a></li><li><a href="#checklist">Recommended defaults</a></li></ul></nav>
+</div>
+<footer>Fixture Docs is a test page for DISTILL. Content licensed under CC BY 4.0.</footer>
+</body>
+</html>

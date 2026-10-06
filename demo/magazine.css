@@ -1,0 +1,84 @@
+/* Demo magazine layout for the DISTILL fixtures. "The Understory" is not a real publication. */
+*{box-sizing:border-box}
+html{--ink:#1b1d1a;--muted:#5d625a;--rule:#e3e4df;--accent:#2f5d3a;--paper:#fff;background:var(--paper)}
+body{margin:0;color:var(--ink);font:18px/1.62 "Source Serif 4",Georgia,serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.topbar{background:#1f3a26;color:#e9f0e6;font:500 13px/1 Inter,system-ui,sans-serif;text-align:center;padding:9px 16px}
+.topbar a{color:#ffe08a;font-weight:600;text-decoration:none;margin-left:6px}
+.site-header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);border-bottom:1px solid var(--rule);backdrop-filter:blur(6px)}
+.site-header .in{max-width:1200px;margin:0 auto;padding:0 40px;height:64px;display:flex;align-items:center;gap:36px;font:500 14px/1 Inter,system-ui,sans-serif}
+.logo{font:700 25px/1 "Source Serif 4",Georgia,serif;letter-spacing:-.02em;text-decoration:none;color:var(--accent);white-space:nowrap}
+.main-nav{display:flex;gap:22px;flex:1}
+.main-nav a{text-decoration:none;color:#30342e}
+.main-nav a:hover{color:var(--accent)}
+.actions{display:flex;gap:10px}
+.btn{display:inline-block;padding:9px 14px;border-radius:6px;border:1px solid #cfd3cb;text-decoration:none;font:600 13px/1 Inter,system-ui,sans-serif;background:#fff;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.layout{max-width:1200px;margin:0 auto;padding:40px 40px 0;display:grid;grid-template-columns:minmax(0,720px) 300px;gap:64px;justify-content:space-between}
+.kicker{font:600 13px/1 Inter,system-ui,sans-serif;color:var(--accent);margin:0 0 14px}
+h1{font:700 46px/1.08 "Source Serif 4",Georgia,serif;letter-spacing:-.022em;margin:0 0 16px}
+.dek{font-size:21px;line-height:1.45;color:#3c4139;margin:0 0 20px}
+.byline{display:flex;gap:14px;align-items:center;font:500 13px/1.4 Inter,system-ui,sans-serif;color:var(--muted);padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.byline b{color:var(--ink);font-weight:600}
+.avatar{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#e8c98f,#a2733a)}
+.hero{margin:26px 0 8px}
+.hero img{display:block;width:100%;height:auto;border-radius:3px}
+figcaption{font:400 13px/1.45 Inter,system-ui,sans-serif;color:var(--muted);margin-top:8px}
+.share-bar{display:flex;gap:8px;margin:18px 0 6px;font:600 12px/1 Inter,system-ui,sans-serif}
+.share-bar a{padding:8px 11px;border:1px solid var(--rule);border-radius:20px;text-decoration:none;color:#3a3f37}
+.story-body p{margin:0 0 1.15em}
+.story-body h2{font:700 27px/1.2 "Source Serif 4",Georgia,serif;letter-spacing:-.01em;margin:1.6em 0 .55em}
+.story-body a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:2px}
+.pull{margin:1.6em 0;padding:4px 0 4px 26px;border-left:4px solid var(--accent);font:italic 400 26px/1.35 "Source Serif 4",Georgia,serif;color:#2b3328}
+.story-body ul{padding-left:1.2em;margin:0 0 1.2em}
+.story-body li{margin:.2em 0}
+.read-also{margin:1.6em 0;padding:16px 18px;background:#f4f6f1;border-radius:6px;font:500 15px/1.45 Inter,system-ui,sans-serif}
+.read-also span{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.read-also a{text-decoration:none;font-weight:600}
+.ad-slot{margin:1.8em 0;text-align:center;font:500 11px/1 Inter,system-ui,sans-serif;color:#8a8f86}
+.ad-slot .ad{margin-top:6px;height:120px;border-radius:4px;background:linear-gradient(120deg,#ffe7b0,#ffc56e 45%,#f29a4a);display:flex;align-items:center;justify-content:center;gap:18px;font:700 22px/1.1 Inter,system-ui,sans-serif;color:#4a2a09}
+.ad-slot .ad small{display:block;font:500 13px/1.3 Inter,system-ui,sans-serif}
+.ad-slot .ad .cta{background:#4a2a09;color:#ffe9c4;padding:10px 14px;border-radius:5px;font-size:13px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0;font:600 12px/1 Inter,system-ui,sans-serif}
+.tags a{padding:7px 10px;background:#eef2ea;border-radius:4px;text-decoration:none;color:#33402f}
+.author-bio{display:flex;gap:16px;padding:20px 0;border-top:1px solid var(--rule);font:400 14px/1.5 Inter,system-ui,sans-serif;color:#454a42}
+.author-bio .avatar{flex:0 0 52px;height:52px}
+.related{margin:40px 0;padding-top:24px;border-top:3px solid var(--ink)}
+.related h3,.newsletter h3,.comments h3,.sidebar h3{font:700 13px/1 Inter,system-ui,sans-serif;margin:0 0 16px}
+.related ul{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.related li a{display:block;text-decoration:none;font:600 18px/1.3 "Source Serif 4",Georgia,serif}
+.related li span{display:block;font:400 13px/1.4 Inter,system-ui,sans-serif;color:var(--muted);margin-top:6px}
+.thumb{height:110px;border-radius:4px;margin-bottom:10px;background:linear-gradient(135deg,#9fb48a,#4d6a3e)}
+.thumb.b{background:linear-gradient(135deg,#d8c9a3,#8c6d3f)}.thumb.c{background:linear-gradient(135deg,#a9c6cf,#3f6676)}.thumb.d{background:linear-gradient(135deg,#d6b0a0,#7a4a3c)}
+.newsletter{margin:40px 0;padding:26px;background:#1f3a26;color:#eef3ea;border-radius:8px;font:400 15px/1.5 Inter,system-ui,sans-serif}
+.newsletter h3{color:#ffe08a}
+.newsletter form{display:flex;gap:8px;margin-top:14px}
+.newsletter input{flex:1;padding:11px 12px;border-radius:5px;border:0;font:inherit}
+.newsletter button{padding:11px 16px;border:0;border-radius:5px;background:#ffe08a;color:#1f3a26;font:700 14px/1 Inter,system-ui,sans-serif}
+.comments{margin:40px 0 60px;font:400 15px/1.5 Inter,system-ui,sans-serif}
+.comment{padding:14px 0;border-top:1px solid var(--rule)}
+.comment b{display:block;font-size:13px;margin-bottom:4px}
+.sidebar{font:400 14px/1.45 Inter,system-ui,sans-serif}
+.sidebar .ad-box{height:250px;border-radius:4px;background:linear-gradient(160deg,#c7e3f0,#5d9ec4);display:flex;flex-direction:column;justify-content:flex-end;padding:18px;color:#0e2c3d;font:700 21px/1.15 Inter,system-ui,sans-serif;margin-bottom:6px}
+.sidebar .ad-box small{font:500 12px/1.3 Inter,system-ui,sans-serif;margin-top:6px}
+.sidebar .label{font:500 11px/1 Inter,system-ui,sans-serif;color:#8a8f86;margin:0 0 6px}
+.most-read{margin:34px 0;position:sticky;top:90px}
+.most-read ol{margin:0;padding:0;list-style:none;counter-reset:m}
+.most-read li{counter-increment:m;display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--rule)}
+.most-read li::before{content:counter(m);font:700 22px/1 "Source Serif 4",Georgia,serif;color:var(--accent);min-width:18px}
+.most-read a{text-decoration:none;font-weight:600}
+.site-footer{background:#151815;color:#b9beb4;margin-top:40px;font:400 14px/1.6 Inter,system-ui,sans-serif}
+.site-footer .in{max-width:1200px;margin:0 auto;padding:48px 40px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px}
+.site-footer h4{color:#fff;font-size:13px;margin:0 0 10px}
+.site-footer a{display:block;text-decoration:none;color:#b9beb4}
+.site-footer .legal{grid-column:1/-1;border-top:1px solid #2b302a;padding-top:18px;font-size:12px;color:#7e847a}
+.cookie{position:fixed;left:16px;right:16px;bottom:16px;z-index:30;max-width:760px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:14px 16px;background:#fff;border:1px solid #d9dcd4;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.14);font:400 13.5px/1.45 Inter,system-ui,sans-serif}
+.cookie p{margin:0;flex:1}
+@media (max-width:900px){.layout{grid-template-columns:minmax(0,1fr);padding:24px 18px 0}.sidebar{display:none}.site-header .in{padding:0 18px;gap:16px}.main-nav{display:none}h1{font-size:34px}.dek{font-size:19px}.related ul{grid-template-columns:1fr}.site-footer .in{grid-template-columns:1fr 1fr;padding:32px 18px}.cookie{flex-direction:column;align-items:stretch}}
+/* lets DISTILL's card use the page fonts in the demo recordings */
+:root{--distill-sans:Inter,system-ui,sans-serif;--distill-serif:"Source Serif 4",Georgia,serif}
+/* demo page only: the button that runs DISTILL */
+.distill-run{position:fixed;left:16px;bottom:16px;z-index:40;display:inline-flex;align-items:center;gap:8px;padding:11px 16px 11px 13px;border-radius:999px;border:1.5px solid #1b2326;background:#ffe84a;color:#1b2326;font:700 14px/1 Inter,system-ui,sans-serif;box-shadow:0 2px 0 #1b2326;cursor:pointer}
+.distill-run svg{width:15px;height:17px}
+.distill-run:active{transform:translateY(1px);box-shadow:0 1px 0 #1b2326}
+@media (max-width:900px){.distill-run{left:auto;right:12px;bottom:auto;top:76px}}

@@ -1,0 +1,33 @@
+{
+  "name": "distill",
+  "version": "1.0.0",
+  "description": "TL;DR any website. Nothing leaves your browser.",
+  "homepage": "https://shmidtqq65.github.io/distill/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shmidtqq65/distill.git"
+  },
+  "license": "MIT",
+  "author": "shmidtqq (https://x.com/shmidtqq)",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node test/smoke.mjs",
+    "demo": "node scripts/record-demo.mjs"
+  },
+  "keywords": [
+    "summarizer",
+    "tldr",
+    "bookmarklet",
+    "chrome-extension",
+    "textrank",
+    "chrome-built-in-ai",
+    "css-highlight-api",
+    "reading"
+  ],
+  "devDependencies": {
+    "playwright": "^1.56.0",
+    "terser": "^5.44.0"
+  }
+}
